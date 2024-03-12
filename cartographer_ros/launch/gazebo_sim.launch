@@ -16,20 +16,26 @@
 
 <launch>
   <param name="use_sim_time" value="true" />
+  <arg name="open_rviz" default="true"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="imu_tf" args="0 0 0.068 0 0 0 1 base_footprint imu 100" />
-  <node pkg="tf" type="static_transform_publisher" name="camera_tf" args="0.645 -0.047 0.107 -1.57 0 -1.57 base_footprint camera_rgb_optical_frame 100" />
-
-  <node name="cartographer_node" pkg="cartographer_ros"
-      type="cartographer_node" args="
-          -configuration_directory $(find cartographer_ros)/configuration_files
-          -configuration_basename gazebo_sim.lua"
-      output="screen">
+  <node name="cartographer_node" pkg="cartographer_ros" type="cartographer_node" 
+        args="-configuration_directory $(find cartographer_ros)/configuration_files
+              -configuration_basename gazebo_sim.lua"
+        output="screen">
     <remap from="points2" to="camera/depth/points" />
-    <!-- <remap from="imu" to="imu" /> -->
+    <remap from="imu" to="flat_imu" />
   </node>
 
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
       type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+
+  <!-- flat_world_imu_node -->
+  <node pkg="turtlebot3_slam" type="flat_world_imu_node" name="flat_world_imu_node" output="screen">
+    <remap from="imu_in" to="/imu" />
+    <remap from="imu_out" to="/flat_imu" />
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find turtlebot3_slam)/rviz/turtlebot3_cartographer.rviz"/>
 
 </launch>

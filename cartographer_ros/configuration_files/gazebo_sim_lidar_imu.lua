@@ -12,6 +12,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
+-- not using odometry to build the map
+
 include "map_builder.lua"
 include "trajectory_builder.lua"
 
@@ -20,12 +22,12 @@ options = {
   trajectory_builder = TRAJECTORY_BUILDER,
   map_frame = "map",
   tracking_frame = "base_footprint",
-  published_frame = "odom",
+  published_frame = "base_footprint",
   odom_frame = "odom",
   provide_odom_frame = false,
   publish_frame_projected_to_2d = false, 
   use_pose_extrapolator = false,
-  use_odometry = true,
+  use_odometry = false,
   use_nav_sat = false,
   use_landmarks = false,
   num_laser_scans = 0,
@@ -46,10 +48,9 @@ options = {
 TRAJECTORY_BUILDER_3D.num_accumulated_range_data = 1
 
 MAP_BUILDER.use_trajectory_builder_3d = true
-MAP_BUILDER.num_background_threads = 5
+MAP_BUILDER.num_background_threads = 7
 POSE_GRAPH.optimization_problem.huber_scale = 5e2
-POSE_GRAPH.optimize_every_n_nodes = 0
--- POSE_GRAPH.optimize_every_n_nodes = 320
+POSE_GRAPH.optimize_every_n_nodes = 320
 POSE_GRAPH.constraint_builder.sampling_ratio = 0.03
 POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 10
 POSE_GRAPH.constraint_builder.min_score = 0.62
