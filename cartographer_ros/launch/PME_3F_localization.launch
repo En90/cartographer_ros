@@ -1,0 +1,48 @@
+<!--
+  Copyright 2016 The Cartographer Authors
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<launch>
+  <!-- <arg name="map_yaml" default="$(find cartographer_ros)/maps/PME_3F.yaml" /> -->
+  <arg name="load_state_filename" default="$(find cartographer_ros)/maps/PME_3F.pbstream" />
+
+  <node pkg="tf" type="static_transform_publisher" name="lidar_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_lidar 100" />
+
+  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_imu 100" />
+
+  <node pkg="rosserial_python" type="serial_node.py" name="serial_node">
+    <param name="port" value="/dev/rosserial" />
+    <param name="baud" value="115200" />
+  </node>
+
+  <include file="$(find unitree_lidar_ros)/launch/run_without_rviz.launch" />
+
+  <include file="$(find odom_transform)/launch/odom_transform_init.launch" />
+
+  <node name="cartographer_node" pkg="cartographer_ros" type="cartographer_node" 
+        args="-configuration_directory $(find cartographer_ros)/configuration_files
+              -configuration_basename PME_3F.lua
+              -load_state_filename $(arg load_state_filename)"
+        output="screen">
+    <remap from="points2" to="unilidar/cloud" />
+    <remap from="imu" to="unilidar/imu" />
+  </node>
+
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_yaml)" /> -->
+
+  <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+      type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+
+</launch>
