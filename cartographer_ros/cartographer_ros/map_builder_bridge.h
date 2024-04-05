@@ -38,6 +38,10 @@
 #include "geometry_msgs/TransformStamped.h"
 #include "nav_msgs/OccupancyGrid.h"
 
+// en add
+#include "cartographer/mapping/id.h"
+#include "cartographer/mapping/trajectory_node.h"
+
 // Abseil unfortunately pulls in winnt.h, which #defines DELETE.
 // Clean up to unbreak visualization_msgs::Marker::DELETE.
 #ifdef DELETE
@@ -46,6 +50,11 @@
 #include "visualization_msgs/MarkerArray.h"
 
 namespace cartographer_ros {
+
+// en add
+using ::cartographer::mapping::NodeId;
+using ::cartographer::mapping::MapById;
+using ::cartographer::mapping::TrajectoryNode;
 
 class MapBuilderBridge {
  public:
@@ -101,6 +110,9 @@ class MapBuilderBridge {
   visualization_msgs::MarkerArray GetConstraintList();
 
   SensorBridge* sensor_bridge(int trajectory_id);
+  
+  // en add
+  std::shared_ptr<MapById<NodeId, TrajectoryNode>> GetTrajectoryNodes();
 
  private:
   void OnLocalSlamResult(const int trajectory_id,

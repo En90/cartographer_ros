@@ -48,6 +48,16 @@
 #include "tf2_eigen/tf2_eigen.h"
 #include "visualization_msgs/MarkerArray.h"
 
+// en add
+#include "cartographer/mapping/id.h"
+#include "cartographer/mapping/trajectory_node.h"
+#include "cartographer/sensor/point_cloud.h"
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/voxel_grid.h>
+
 namespace cartographer_ros {
 
 namespace carto = ::cartographer;
@@ -55,6 +65,12 @@ namespace carto = ::cartographer;
 using carto::transform::Rigid3d;
 using TrajectoryState =
     ::cartographer::mapping::PoseGraphInterface::TrajectoryState;
+
+// en add
+using ::cartographer::mapping::NodeId;
+using ::cartographer::mapping::MapById;
+using ::cartographer::mapping::TrajectoryNode;
+using ::cartographer::sensor::RangefinderPoint;
 
 namespace {
 // Subscribes to the 'topic' for 'trajectory_id' using the 'node_handle' and
@@ -119,6 +135,14 @@ Node::Node(
         node_handle_.advertise<::geometry_msgs::PoseStamped>(
             kTrackedPoseTopic, kLatestOnlyPublisherQueueSize);
   }
+  
+  // en add
+  if (node_options_.map_builder_options.use_trajectory_builder_3d()) {
+    point_cloud_map_publisher_ =
+        node_handle_.advertise<sensor_msgs::PointCloud2>(
+            "point_cloud_map", kLatestOnlyPublisherQueueSize, true);
+  }
+  
   service_servers_.push_back(node_handle_.advertiseService(
       kSubmapQueryServiceName, &Node::HandleSubmapQuery, this));
   service_servers_.push_back(node_handle_.advertiseService(
@@ -155,6 +179,13 @@ Node::Node(
   wall_timers_.push_back(node_handle_.createWallTimer(
       ::ros::WallDuration(kConstraintPublishPeriodSec),
       &Node::PublishConstraintList, this));
+      
+  // en add
+  if (node_options_.map_builder_options.use_trajectory_builder_3d()) {
+    wall_timers_.push_back(node_handle_.createWallTimer(
+        ::ros::WallDuration(10),  // 10s
+        &Node::PublishPointCloudMap, this));
+  }
 }
 
 Node::~Node() { FinishAllTrajectories(); }
@@ -706,6 +737,21 @@ bool Node::HandleWriteState(
     response.status.message =
         absl::StrCat("Failed to write '", request.filename, "'.");
   }
+  
+  // en add
+  constexpr bool save_pcd = false;
+  if (node_options_.map_builder_options.use_trajectory_builder_3d() && save_pcd) {
+    absl::MutexLock lock(&point_cloud_map_mutex_);
+    const std::string suffix = ".pbstream";
+    std::string prefix =
+        request.filename.substr(0, request.filename.size() - suffix.size());
+    
+    LOG(INFO) << "Saving map to pcd files ...";
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_point_cloud_map(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::fromROSMsg(ros_point_cloud_map_, *pcl_point_cloud_map);
+    pcl::io::savePCDFileASCII(prefix + ".pcd", *pcl_point_cloud_map);
+    LOG(INFO) << "Pcd written to " << prefix << ".pcd";
+  }
   return true;
 }
 
@@ -892,6 +938,76 @@ void Node::MaybeWarnAboutTopicMismatch(
     LOG(WARNING) << "Currently available topics are: "
                  << published_topics_string.str();
   }
+}
+
+// en add
+void Node::PublishPointCloudMap(const ::ros::WallTimerEvent& timer_event) {
+  // Do not publish pointcloud map when running pure localization mode
+  if (load_state_ || point_cloud_map_publisher_.getNumSubscribers() == 0) {
+    return;
+  }
+
+  // Only publish the trajectory 0
+  constexpr int trajectory_id = 0;
+
+  // Obtain the optimized node pose and point cloud data of the node
+  std::shared_ptr<MapById<NodeId, TrajectoryNode>> trajectory_nodes =
+      map_builder_bridge_.GetTrajectoryNodes();
+
+  // If the number does not change, the pointcloud map will not be published.
+  size_t trajectory_nodes_size = trajectory_nodes->SizeOfTrajectoryOrZero(trajectory_id);
+  if (last_trajectory_nodes_size_ == trajectory_nodes_size)
+    return;
+  last_trajectory_nodes_size_ = trajectory_nodes_size;
+
+  absl::MutexLock lock(&point_cloud_map_mutex_);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud_map(new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::PointCloud<pcl::PointXYZ>::Ptr node_point_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+  
+  // Traverse all optimized nodes of trajectory 0
+  auto node_it = trajectory_nodes->BeginOfTrajectory(trajectory_id);
+  auto end_it = trajectory_nodes->EndOfTrajectory(trajectory_id);
+  for (; node_it != end_it; ++node_it) {
+    auto& trajectory_node = trajectory_nodes->at(node_it->id);
+    //auto& high_resolution_point_cloud = trajectory_node.constant_data->high_resolution_point_cloud;
+    const cartographer::sensor::PointCloud& high_resolution_point_cloud = trajectory_node.constant_data->high_resolution_point_cloud;
+    auto& global_pose = trajectory_node.global_pose;
+	// The following are all using high-resolution pointcloud
+    if (trajectory_node.constant_data != nullptr) {
+      node_point_cloud->clear();
+      node_point_cloud->resize(high_resolution_point_cloud.size());
+      // Traverse each point of the pointcloud and perform coordinate transformation
+      for (const RangefinderPoint& point :
+           high_resolution_point_cloud.points()) {
+        RangefinderPoint range_finder_point = global_pose.cast<float>() * point;
+        node_point_cloud->push_back(pcl::PointXYZ(
+            range_finder_point.position.x(), range_finder_point.position.y(),
+            range_finder_point.position.z()));
+      }
+      
+      // Use voxel grid to downsample and filter the pointcloud
+      // Define the voxel grid filter
+      pcl::VoxelGrid<pcl::PointXYZ> sor;
+      sor.setInputCloud(node_point_cloud);
+      // Set the leaf size (voxel size)
+      float leaf_size = 0.1f; // Adjust this value according to your needs (m)
+      sor.setLeafSize(leaf_size, leaf_size, leaf_size);
+      // Perform the downsampling
+      pcl::PointCloud<pcl::PointXYZ>::Ptr downsampled_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+      sor.filter(*downsampled_cloud);
+      
+      // Combine the point clouds of each node together
+      //*point_cloud_map += *node_point_cloud;
+      *point_cloud_map += *downsampled_cloud;
+    }
+  } // end for
+
+  ros_point_cloud_map_.data.clear();
+  pcl::toROSMsg(*point_cloud_map, ros_point_cloud_map_);
+  ros_point_cloud_map_.header.stamp = ros::Time::now();
+  ros_point_cloud_map_.header.frame_id = node_options_.map_frame;
+  LOG(INFO) << "publish point cloud map";
+  point_cloud_map_publisher_.publish(ros_point_cloud_map_);
 }
 
 }  // namespace cartographer_ros

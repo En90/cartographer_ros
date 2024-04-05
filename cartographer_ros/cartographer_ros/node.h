@@ -229,6 +229,15 @@ class Node {
   // simulation time is standing still. This prevents overflowing the transform
   // listener buffer by publishing the same transforms over and over again.
   ::ros::Timer publish_local_trajectory_data_timer_;
+  
+  // en add
+  void PublishPointCloudMap(const ::ros::WallTimerEvent& timer_event);
+  ::ros::Publisher point_cloud_map_publisher_;
+  absl::Mutex point_cloud_map_mutex_;
+  bool load_state_ = false;
+  size_t last_trajectory_nodes_size_ = 0;
+  sensor_msgs::PointCloud2 ros_point_cloud_map_;
+  
 };
 
 }  // namespace cartographer_ros
