@@ -536,4 +536,12 @@ void MapBuilderBridge::OnLocalSlamResult(
   local_slam_data_[trajectory_id] = std::move(local_slam_data);
 }
 
+// en add
+std::shared_ptr<MapById<NodeId, TrajectoryNode>> MapBuilderBridge::GetTrajectoryNodes() {
+  std::shared_ptr<MapById<NodeId, TrajectoryNode>> trajectory_nodes =
+      std::make_shared<MapById<NodeId, TrajectoryNode>>(
+        map_builder_->pose_graph()->GetTrajectoryNodes());
+  return trajectory_nodes;
+}
+
 }  // namespace cartographer_ros

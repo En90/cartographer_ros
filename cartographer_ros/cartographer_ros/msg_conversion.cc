@@ -226,7 +226,9 @@ ToPointCloudWithIntensities(const sensor_msgs::PointCloud2& msg) {
       point_cloud.intensities.reserve(pcl_point_cloud.size());
       for (const auto& point : pcl_point_cloud) {
         point_cloud.points.push_back(
-            {Eigen::Vector3f{point.x, point.y, point.z}, point.time});
+        	// en change
+            {Eigen::Vector3f{point.x, point.y, point.z}, 0.f});
+            //{Eigen::Vector3f{point.x, point.y, point.z}, point.time});
         point_cloud.intensities.push_back(point.intensity);
       }
     } else {
@@ -249,7 +251,9 @@ ToPointCloudWithIntensities(const sensor_msgs::PointCloud2& msg) {
       point_cloud.intensities.reserve(pcl_point_cloud.size());
       for (const auto& point : pcl_point_cloud) {
         point_cloud.points.push_back(
-            {Eigen::Vector3f{point.x, point.y, point.z}, point.time});
+        	// en change
+        	{Eigen::Vector3f{point.x, point.y, point.z}, 0.f});
+            //{Eigen::Vector3f{point.x, point.y, point.z}, point.time});
         point_cloud.intensities.push_back(1.0f);
       }
     } else {
