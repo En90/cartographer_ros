@@ -19,15 +19,11 @@
   <node pkg="tf" type="static_transform_publisher" name="lidar_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_lidar 100" />
   <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_imu 100" />
 
-  <!-- <node pkg="rosserial_python" type="serial_node.py" name="serial_node">
-    <param name="port" value="/dev/rosserial" />
-    <param name="baud" value="115200" />
-  </node> -->
   <include file="$(find rosserial_server)/launch/chassis_serial.launch" />
 
   <include file="$(find unitree_lidar_ros)/launch/run_without_rviz.launch" />
 
-  <include file="$(find odom_transform)/launch/odom_transform_init.launch" />
+  <include file="$(find odom_transform)/launch/tf_transform.launch" />
 
   <node name="cartographer_node" pkg="cartographer_ros" type="cartographer_node" 
         args="-configuration_directory $(find cartographer_ros)/configuration_files
