@@ -1,3 +1,4 @@
+
 -- Copyright 2016 The Cartographer Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,33 +45,35 @@ options = {
 }
 
 TRAJECTORY_BUILDER_3D.num_accumulated_range_data = 1
-TRAJECTORY_BUILDER_3D.voxel_filter_size = 0.1
-TRAJECTORY_BUILDER_3D.ceres_scan_matcher.ceres_solver_options.max_num_iterations = 15
-TRAJECTORY_BUILDER_3D.max_range = 20
-TRAJECTORY_BUILDER_3D.submaps.high_resolution = 0.1
-TRAJECTORY_BUILDER_3D.submaps.low_resolution = 0.4
-TRAJECTORY_BUILDER_3D.submaps.num_range_data = 200
+TRAJECTORY_BUILDER_3D.voxel_filter_size = 0.15
+TRAJECTORY_BUILDER_3D.ceres_scan_matcher.ceres_solver_options.max_num_iterations = 25
+TRAJECTORY_BUILDER_3D.max_range = 15
+TRAJECTORY_BUILDER_3D.min_range = 0.7
+TRAJECTORY_BUILDER_3D.submaps.high_resolution = 0.15
+TRAJECTORY_BUILDER_3D.submaps.low_resolution = 0.75
+TRAJECTORY_BUILDER_3D.submaps.num_range_data = 250
+-- TRAJECTORY_BUILDER_3D.ceres_scan_matcher.rotation_weight = 350
+-- TRAJECTORY_BUILDER_3D.ceres_scan_matcher.translation_weight = 4.5
 -- TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.min_num_points = 60
-TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.max_range = 10
+-- TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.max_range = 10
 -- TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.max_length = 5
 -- TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.min_num_points = 100
-TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.max_range = 20
+-- TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.max_range = 20
 -- TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.max_length = 7
+TRAJECTORY_BUILDER_3D.use_online_correlative_scan_matching = true
+TRAJECTORY_BUILDER_3D.ceres_scan_matcher.only_optimize_yaw = true
 
 MAP_BUILDER.use_trajectory_builder_3d = true
 MAP_BUILDER.num_background_threads = 2
 POSE_GRAPH.optimization_problem.huber_scale = 5e2
 -- POSE_GRAPH.optimize_every_n_nodes = 0
-POSE_GRAPH.optimize_every_n_nodes = 3
-POSE_GRAPH.constraint_builder.sampling_ratio = 0.3
-POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 50
-POSE_GRAPH.constraint_builder.min_score = 0.62
-POSE_GRAPH.constraint_builder.global_localization_min_score = 0.66
+POSE_GRAPH.optimize_every_n_nodes = 150
+POSE_GRAPH.constraint_builder.sampling_ratio = 0.4
+POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 70
+POSE_GRAPH.constraint_builder.min_score = 0.56 --0.62
+POSE_GRAPH.constraint_builder.global_localization_min_score = 0.7 --0.66
 POSE_GRAPH.constraint_builder.max_constraint_distance = 20
-POSE_GRAPH.global_sampling_ratio = 0.3
-
-TRAJECTORY_BUILDER.pure_localization_trimmer = {
-  max_submaps_to_keep = 3,
-}
-
+POSE_GRAPH.global_sampling_ratio = 0.02
+POSE_GRAPH.max_num_final_iterations = 500
+POSE_GRAPH.constraint_builder.ceres_scan_matcher_3d.only_optimize_yaw = true
 return options
