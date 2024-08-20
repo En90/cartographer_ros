@@ -16,8 +16,8 @@
 
 <launch>
 
-  <node pkg="tf" type="static_transform_publisher" name="lidar_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_lidar 100" />
-  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_imu 100" />
+  <node pkg="tf" type="static_transform_publisher" name="lidar_link_broadcaster" args="0 0 0.34 0 0 0 base_footprint unilidar_lidar 100" />
+  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0.34 0 0 0 base_footprint unilidar_imu 100" />
 
   <include file="$(find rosserial_server)/launch/chassis_serial.launch" />
 

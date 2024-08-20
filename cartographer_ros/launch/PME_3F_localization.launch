@@ -1,3 +1,4 @@
+
 <!--
   Copyright 2016 The Cartographer Authors
 
@@ -15,12 +16,11 @@
 -->
 
 <launch>
-  <arg name="map_yaml" default="$(find cartographer_ros)/maps/PME_3F_revise.yaml" />
+  <arg name="map_yaml" default="$(find cartographer_ros)/maps/PME_3F.yaml" />
   <arg name="load_state_filename" default="$(find cartographer_ros)/maps/pbstream_file/PME_3F.pbstream" />
 
-  <node pkg="tf" type="static_transform_publisher" name="lidar_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_lidar 100" />
-
-  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0.3 -0.39 0 0 base_footprint unilidar_imu 100" />
+  <node pkg="tf" type="static_transform_publisher" name="lidar_link_broadcaster" args="0 0 0.34 0 0 0 base_footprint unilidar_lidar 100" />
+  <node pkg="tf" type="static_transform_publisher" name="imu_link_broadcaster" args="0 0 0.34 0 0 0 base_footprint unilidar_imu 100" />
 
   <include file="$(find rosserial_server)/launch/chassis_serial.launch" />
 
@@ -37,9 +37,9 @@
     <remap from="imu" to="unilidar/imu" />
   </node>
 
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_yaml)">
+  <!-- node name="map_server" pkg="map_server" type="map_server" args="$(arg map_yaml)">
     <remap from="map" to="carto_map" />
-  </node>
+  </node> --> 
   
 
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
