@@ -27,7 +27,7 @@
 
   <node name="cartographer_node" pkg="cartographer_ros" type="cartographer_node" 
         args="-configuration_directory $(find cartographer_ros)/configuration_files
-              -configuration_basename lake2.lua"
+              -configuration_basename lake.lua"
         output="screen">
     <remap from="points2" to="unilidar/cloud" />
     <remap from="imu" to="unilidar/imu" />
