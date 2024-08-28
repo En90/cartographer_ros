@@ -1,4 +1,3 @@
-
 -- Copyright 2016 The Cartographer Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,39 +45,55 @@ options = {
 
 TRAJECTORY_BUILDER_3D.num_accumulated_range_data = 1
 TRAJECTORY_BUILDER_3D.voxel_filter_size = 0.1
-TRAJECTORY_BUILDER_3D.ceres_scan_matcher.ceres_solver_options.max_num_iterations = 20
+TRAJECTORY_BUILDER_3D.ceres_scan_matcher.ceres_solver_options.max_num_iterations = 15
 TRAJECTORY_BUILDER_3D.max_range = 20
 TRAJECTORY_BUILDER_3D.min_range = 0.7
 TRAJECTORY_BUILDER_3D.submaps.high_resolution = 0.1
 TRAJECTORY_BUILDER_3D.submaps.low_resolution = 0.5
 TRAJECTORY_BUILDER_3D.submaps.num_range_data = 250
--- TRAJECTORY_BUILDER_3D.ceres_scan_matcher.rotation_weight = 350
--- TRAJECTORY_BUILDER_3D.ceres_scan_matcher.translation_weight = 4.5
 -- TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.min_num_points = 60
 -- TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.max_range = 10
 -- TRAJECTORY_BUILDER_3D.high_resolution_adaptive_voxel_filter.max_length = 5
 -- TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.min_num_points = 100
 -- TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.max_range = 20
 -- TRAJECTORY_BUILDER_3D.low_resolution_adaptive_voxel_filter.max_length = 7
+TRAJECTORY_BUILDER_3D.ceres_scan_matcher.only_optimize_yaw = true
 TRAJECTORY_BUILDER_3D.use_online_correlative_scan_matching = true
--- TRAJECTORY_BUILDER_3D.ceres_scan_matcher.only_optimize_yaw = true
+-- TRAJECTORY_BUILDER_3D.motion_filter.max_time_seconds = 0.5
+-- TRAJECTORY_BUILDER_3D.motion_filter.max_distance_meters = 0.1
+-- TRAJECTORY_BUILDER_3D.motion_filter.max_angle_radians = 0.004
+
+
+TRAJECTORY_BUILDER.pure_localization_trimmer = {
+  max_submaps_to_keep = 3,
+}
 
 MAP_BUILDER.use_trajectory_builder_3d = true
 MAP_BUILDER.num_background_threads = 2
 POSE_GRAPH.optimization_problem.huber_scale = 5e2
-POSE_GRAPH.optimize_every_n_nodes = 200
-POSE_GRAPH.constraint_builder.sampling_ratio = 0.05
-POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 70
-POSE_GRAPH.constraint_builder.min_score = 0.4
-POSE_GRAPH.constraint_builder.max_constraint_distance = 15
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_rotational_score = 0.65
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_xy_search_window = 2.5
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_z_search_window = 0.5
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.angular_search_window = math.rad(20.)
-POSE_GRAPH.max_num_final_iterations = 500
+-- POSE_GRAPH.optimize_every_n_nodes = 0
+POSE_GRAPH.optimize_every_n_nodes = 10
+POSE_GRAPH.constraint_builder.sampling_ratio = 0.1 --0.28
+POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 60 --40
+POSE_GRAPH.constraint_builder.min_score = 0.56
+POSE_GRAPH.constraint_builder.global_localization_min_score = 0.6
+POSE_GRAPH.constraint_builder.max_constraint_distance = 10
+POSE_GRAPH.global_sampling_ratio = 0.01
 -- POSE_GRAPH.constraint_builder.ceres_scan_matcher_3d.only_optimize_yaw = true
+-- POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.branch_and_bound_depth = 7
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_xy_search_window = 2
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_z_search_window = 0.2
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.angular_search_window = math.rad(20.)
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_rotational_score = 0.5
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_low_resolution_score = 0.6
+--POSE_GRAPH.constraint_builder.ceres_scan_matcher_3d.occupied_space_weight_0 = 6
+--POSE_GRAPH.optimization_problem.local_slam_pose_translation_weight = 2e5
+--POSE_GRAPH.optimization_problem.local_slam_pose_rotation_weight = 2e5
+--POSE_GRAPH.optimization_problem.odometry_translation_weight = 1e5
+--POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e4
+POSE_GRAPH.optimization_problem.use_online_imu_extrinsics_in_3d = false
+POSE_GRAPH.optimization_problem.huber_scale = 8
 
---POSE_GRAPH.optimization_problem.use_online_imu_extrinsics_in_3d = false
 POSE_GRAPH.log_residual_histograms = false
 POSE_GRAPH.optimization_problem.log_solver_summary = false
 POSE_GRAPH.constraint_builder.log_matches = false
