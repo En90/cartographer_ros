@@ -69,13 +69,13 @@ TRAJECTORY_BUILDER.pure_localization_trimmer = {
 }
 
 MAP_BUILDER.use_trajectory_builder_3d = true
-MAP_BUILDER.num_background_threads = 2
+MAP_BUILDER.num_background_threads = 1
 POSE_GRAPH.optimization_problem.huber_scale = 5e2
 -- POSE_GRAPH.optimize_every_n_nodes = 0
 POSE_GRAPH.optimize_every_n_nodes = 10
-POSE_GRAPH.constraint_builder.sampling_ratio = 0.1 --0.28
+POSE_GRAPH.constraint_builder.sampling_ratio = 0.075 --0.28
 POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 60 --40
-POSE_GRAPH.constraint_builder.min_score = 0.56
+POSE_GRAPH.constraint_builder.min_score = 0.58
 POSE_GRAPH.constraint_builder.global_localization_min_score = 0.6
 POSE_GRAPH.constraint_builder.max_constraint_distance = 10
 POSE_GRAPH.global_sampling_ratio = 0.01
