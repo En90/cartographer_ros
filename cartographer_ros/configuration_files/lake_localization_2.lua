@@ -69,20 +69,20 @@ TRAJECTORY_BUILDER.pure_localization_trimmer = {
 }
 
 MAP_BUILDER.use_trajectory_builder_3d = true
-MAP_BUILDER.num_background_threads = 1
+MAP_BUILDER.num_background_threads = 2
 POSE_GRAPH.optimization_problem.huber_scale = 5e2
 -- POSE_GRAPH.optimize_every_n_nodes = 0
 POSE_GRAPH.optimize_every_n_nodes = 10
-POSE_GRAPH.constraint_builder.sampling_ratio = 0.075 --0.28
-POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 60 --40
-POSE_GRAPH.constraint_builder.min_score = 0.58
-POSE_GRAPH.constraint_builder.global_localization_min_score = 0.6
+POSE_GRAPH.constraint_builder.sampling_ratio = 0.1
+POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 60
+POSE_GRAPH.constraint_builder.min_score = 0.6
+POSE_GRAPH.constraint_builder.global_localization_min_score = 0.60
 POSE_GRAPH.constraint_builder.max_constraint_distance = 10
-POSE_GRAPH.global_sampling_ratio = 0.01
+POSE_GRAPH.global_sampling_ratio = 0.02
 -- POSE_GRAPH.constraint_builder.ceres_scan_matcher_3d.only_optimize_yaw = true
 -- POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.branch_and_bound_depth = 7
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_xy_search_window = 2
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_z_search_window = 0.2
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_z_search_window = 0.25
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.angular_search_window = math.rad(20.)
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_rotational_score = 0.5
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_low_resolution_score = 0.6
@@ -92,7 +92,7 @@ POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_low_resolutio
 --POSE_GRAPH.optimization_problem.odometry_translation_weight = 1e5
 --POSE_GRAPH.optimization_problem.odometry_rotation_weight = 1e4
 POSE_GRAPH.optimization_problem.use_online_imu_extrinsics_in_3d = false
-POSE_GRAPH.optimization_problem.huber_scale = 8
+POSE_GRAPH.optimization_problem.huber_scale = 7.5
 
 POSE_GRAPH.log_residual_histograms = false
 POSE_GRAPH.optimization_problem.log_solver_summary = false
