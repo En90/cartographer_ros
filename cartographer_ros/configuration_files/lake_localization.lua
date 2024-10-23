@@ -66,6 +66,7 @@ TRAJECTORY_BUILDER_3D.use_online_correlative_scan_matching = true
 
 TRAJECTORY_BUILDER.pure_localization_trimmer = {
   max_submaps_to_keep = 3,
+
 }
 
 MAP_BUILDER.use_trajectory_builder_3d = true
@@ -75,16 +76,16 @@ POSE_GRAPH.optimization_problem.huber_scale = 5e2
 POSE_GRAPH.optimize_every_n_nodes = 10
 POSE_GRAPH.constraint_builder.sampling_ratio = 0.2
 POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 60
-POSE_GRAPH.constraint_builder.min_score = 0.54
-POSE_GRAPH.constraint_builder.global_localization_min_score = 0.5
+POSE_GRAPH.constraint_builder.min_score = 0.54 --0.56
+POSE_GRAPH.constraint_builder.global_localization_min_score = 0.46 --0.52
 POSE_GRAPH.constraint_builder.max_constraint_distance = 10
-POSE_GRAPH.global_sampling_ratio = 0.03
+POSE_GRAPH.global_sampling_ratio = 0.15 --0.05
 --POSE_GRAPH.constraint_builder.ceres_scan_matcher_3d.only_optimize_yaw = true
 --POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.branch_and_bound_depth = 7
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_xy_search_window = 1.5
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_z_search_window = 0.2
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.linear_z_search_window = 0.25
 POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.angular_search_window = math.rad(15.)
-POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_rotational_score = 0.58
+POSE_GRAPH.constraint_builder.fast_correlative_scan_matcher_3d.min_rotational_score = 0.75 --0.58
 --POSE_GRAPH.constraint_builder.ceres_scan_matcher_3d.occupied_space_weight_0 = 6
 --POSE_GRAPH.optimization_problem.local_slam_pose_translation_weight = 2e5
 --POSE_GRAPH.optimization_problem.local_slam_pose_rotation_weight = 2e5
